@@ -1,0 +1,62 @@
+// Define pins for atomizers
+const int atomizerPins[] = {A0, A1, A2}; // Pins for Scent A, Scent B, Scent C
+
+// Initial concentrations (50% duty cycle)
+int concentrations[] = {128, 128, 128}; // 50% PWM for each scent
+
+void setup() {
+  // Initialize atomizer pins
+  for (int i = 0; i < 3; i++) {
+    pinMode(atomizerPins[i], OUTPUT);
+  }
+  
+  // Initialize serial communication for user feedback
+  Serial.begin(9600);
+  Serial.println("Welcome to the Adaptive Olfactory Display System");
+}
+
+void loop() {
+  // Present each scent and collect feedback
+  for (int i = 0; i < 3; i++) {
+    presentScent(i);
+    int feedback = getUserFeedback();
+    calibrateScent(i, feedback);
+  }
+
+  // Optional: Repeat the process or finalize the settings
+  Serial.println("Calibration complete. Repeat process? (y/n)");
+  while (Serial.available() == 0) { } // Wait for user input
+  char repeat = Serial.read();
+  if (repeat == 'n') {
+    Serial.println("Finalizing settings...");
+    while (true); // Stop the loop
+  }
+}
+
+void presentScent(int index) {
+  analogWrite(atomizerPins[index], concentrations[index]);
+  delay(5000); // Present scent for 5 seconds
+  analogWrite(atomizerPins[index], 0); // Turn off atomizer
+}
+
+int getUserFeedback() {
+  Serial.println("Rate the intensity (0-10): ");
+  while (Serial.available() == 0) { } // Wait for user input
+  int feedback = Serial.parseInt();
+  return feedback;
+}
+
+void calibrateScent(int index, int feedback) {
+  int targetIntensity = 7; // Target intensity level (0-10 scale)
+  
+  if (feedback < targetIntensity) {
+    concentrations[index] = min(concentrations[index] + 26, 255); // Increase concentration
+  } else if (feedback > targetIntensity) {
+    concentrations[index] = max(concentrations[index] - 26, 0); // Decrease concentration
+  }
+
+  Serial.print("New concentration for Scent ");
+  Serial.print(index + 1);
+  Serial.print(": ");
+  Serial.println(concentrations[index] * 100 / 255); // Print new concentration as a percentage
+}
