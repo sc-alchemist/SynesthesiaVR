@@ -1,8 +1,8 @@
-// Define pins for atomizers
-const int atomizerPins[] = {A0, A1, A2}; // Pins for Scent A, Scent B, Scent C
+// Oins for atomizers
+const int atomizerPins[] = {A0, A1, A2}; // Pins for Scent A, b and C
 
-// Initial concentrations (50% duty cycle)
-int concentrations[] = {128, 128, 128}; // 50% PWM for each scent
+// Initial concentrations (50% intensity cycle)
+int concentrations[] = {128, 128, 128}; // 50%  for each scent
 
 void setup() {
   // Initialize atomizer pins
